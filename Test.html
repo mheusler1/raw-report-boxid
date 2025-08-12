@@ -1,0 +1,22 @@
+<!doctype html><meta charset="utf-8"><title>Key Test</title>
+<pre id="out">Testing…</pre>
+<script>
+const apiKey    = "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";   // paste your full key here
+const projectId = "";                      // optional: "proj_XXXX..."; leave "" if unknown
+
+(async () => {
+  const out = document.getElementById('out');
+  const headers = { "Authorization": `Bearer ${apiKey}` };
+  if (projectId) headers["OpenAI-Project"] = projectId;
+
+  out.textContent = "Checking /v1/models…\n";
+  try {
+    const r = await fetch("https://api.openai.com/v1/models", { headers });
+    const j = await r.json();
+    out.textContent += `HTTP ${r.status}\n` +
+      (j.error ? `Error: ${j.error.message}\n` : "OK (key recognized)\n");
+  } catch (e) {
+    out.textContent += "Network error: " + (e.message || e);
+  }
+})();
+</script>
