@@ -1,17 +1,16 @@
-// api/identify.js  — Vercel Serverless Function (Node.js)
-// Uses your Vercel env var OPEN_API_KEY (no key in the browser)
-// Expects POST JSON: { imageDataUrl: "data:image/...base64,...", context: "optional string" }
+// api/identify.js — Vercel Serverless Function (Node.js)
+// Reads secrets from Vercel env vars (no key in the browser)
+//   OPEN_API_KEY        = your sk-proj-... key
+//   OPENAI_PROJECT_ID   = your proj_... ID
+// POST body: { imageDataUrl: "data:image/...;base64,...", context?: "string" }
 
 export default async function handler(req, res) {
-  // Basic CORS so you can call from your page
+  // Basic CORS so the browser can call this route
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   if (req.method === "OPTIONS") return res.status(200).end();
-
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Use POST" });
-  }
+  if (req.method !== "POST")  return res.status(405).json({ error: "Use POST" });
 
   try {
     const { imageDataUrl, context = "" } = req.body || {};
@@ -49,11 +48,12 @@ RULES:
 Extra context (may help accuracy): ${context}
 `;
 
-    const r = await fetch("https://api.openai.com/v1/chat/completions", {
+    const resp = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.OPEN_API_KEY}`, // <- from Vercel env
+        "Authorization": `Bearer ${process.env.OPEN_API_KEY}`,     // from Vercel
+        "OpenAI-Project": process.env.OPENAI_PROJECT_ID            // <- required for sk-proj keys
       },
       body: JSON.stringify({
         model: "gpt-4o-mini",
@@ -72,13 +72,14 @@ Extra context (may help accuracy): ${context}
       })
     });
 
-    const data = await r.json();
-    if (!r.ok) {
-      return res.status(r.status).json({ error: data?.error?.message || "Upstream error" });
+    const data = await resp.json();
+    if (!resp.ok) {
+      return res.status(resp.status).json({ error: data?.error?.message || "OpenAI error" });
     }
 
-    const text = data?.choices?.[0]?.message?.content || "";
+    const text = data?.choices?.[0]?.message?.content?.trim() || "";
     return res.status(200).json({ text });
+
   } catch (e) {
     return res.status(500).json({ error: e?.message || String(e) });
   }
