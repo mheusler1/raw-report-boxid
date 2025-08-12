@@ -1,180 +1,132 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>🐟 The Raw Report — Sushi Fish ID</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>The Raw Report — Sushi Fish ID</title>
 <style>
-  :root { font-family: -apple-system, system-ui, Segoe UI, Roboto, Arial; background:#1b1b1b; color:#e0e0e0; }
-  body { margin:0 auto; max-width:900px; padding:20px; text-align:center; }
-  img.logo { max-width:200px; margin:0 auto 5px; display:block; }
-  .tagline { font-size:0.9rem; color:#ff2fd0; margin-bottom:14px; }
-  .status { font-size:.8rem; color:#bbb; margin:6px 0 14px; }
-  h1 { margin:6px 0 14px; color:#39ff14; }
-  p  { color:#bbb; }
-  .card { border:1px solid #39ff14; border-radius:12px; padding:16px; margin:12px 0; background:#2a2a2a; }
-  label { display:block; font-weight:700; margin-bottom:6px; color:#ff2fd0; }
-  input[type="file"], input[type="text"] {
-    width:100%; background:#111; color:#fff; border:1px solid #444; padding:8px; border-radius:6px; margin-bottom:10px;
+  :root { --green:#39ff14; --pink:#ff2fd0; --bg:#121212; --panel:#1d1d1d; --text:#f2f2f2; }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system, system-ui, Segoe UI, Roboto, Arial;
   }
-  button { background:#39ff14; color:#000; border:0; padding:10px 16px; border-radius:8px; cursor:pointer; font-weight:700; }
-  button:hover { background:#2ddc0e; }
-  #preview { max-width:100%; border-radius:8px; margin-top:10px; }
-  pre { text-align:left; white-space:pre-wrap; background:#111; color:#fff; padding:10px; border-radius:8px; border:1px solid #444; min-height:120px; }
-  .err { color:#ff6b6b; margin-top:8px; }
+  .wrap{ max-width:980px; margin:0 auto; padding:22px; }
+  header{ text-align:center; margin-bottom:12px; }
+  h1{ margin:.3rem 0; color:var(--green); }
+  .tag{ color:var(--pink); margin:.2rem 0 1rem; font-weight:600; }
+  .card{
+    background:var(--panel); border:1px solid var(--green); border-radius:12px;
+    padding:16px; margin:14px 0;
+  }
+  label{ display:block; font-weight:700; color:var(--pink); margin-bottom:8px; }
+  input[type="file"], input[type="text"]{
+    width:100%; background:#0c0c0c; color:#fff; border:1px solid #3a3a3a; border-radius:8px;
+    padding:10px; outline:none;
+  }
+  button{
+    background:var(--green); color:#000; border:0; padding:10px 16px; font-weight:800;
+    border-radius:8px; cursor:pointer; display:inline-block;
+  }
+  button:disabled{ opacity:.6; cursor:not-allowed; }
+  img.preview{ max-width:100%; border-radius:10px; display:none; margin-top:10px; }
+  pre{
+    background:#0c0c0c; color:#fff; border:1px solid #3a3a3a; border-radius:8px;
+    padding:12px; min-height:140px; white-space:pre-wrap; overflow-wrap:anywhere;
+  }
+  .err{ color:#ff6b6b; min-height:24px; font-weight:600; }
+  .logo{ max-width:160px; display:block; margin:0 auto 6px; }
+  .tiny{ color:#aaa; font-size:.9rem; text-align:center; margin-top:6px; }
 </style>
 </head>
 <body>
+  <div class="wrap">
+    <header>
+      <img src="raw-report-logo.jpg" alt="Raw Report" class="logo">
+      <div class="tiny">If it needs spicy mayo, it’s probably trash.</div>
+      <h1>🐟 The Raw Report — Sushi Fish ID</h1>
+      <div class="tiny">Uploads go to our Cloudflare Worker (key is hidden). No login, no paste.</div>
+    </header>
 
-<!-- Logo file must exist in repo root as raw-report-logo.jpg -->
-<img src="raw-report-logo.jpg" alt="The Raw Report Logo" class="logo" />
-<div class="tagline">If it needs spicy mayo, it’s probably trash.</div>
+    <section class="card">
+      <label>Upload sushi photo</label>
+      <input id="file" type="file" accept="image/*">
+      <img id="preview" class="preview" alt="preview">
+    </section>
 
-<div id="status" class="status"></div>
+    <section class="card">
+      <label>Optional context (helps accuracy)</label>
+      <input id="context" type="text" placeholder="e.g., deluxe box, Murray Hill; came with tuna roll + miso">
+      <div style="margin-top:12px">
+        <button id="goBtn">Identify Fish</button>
+      </div>
+    </section>
 
-<h1>🐟 The Raw Report — Sushi Fish ID</h1>
-<p>Upload a sushi box photo → get a left-to-right, row-by-row breakdown of fish & garnishes.</p>
-
-<div class="card">
-  <label>Upload sushi photo</label>
-  <input id="file" type="file" accept="image/*" />
-  <img id="preview" alt="Preview" />
-</div>
-
-<div class="card">
-  <label>Optional context (helps accuracy)</label>
-  <input id="context" type="text" placeholder="e.g., comes with tuna roll + miso; $48 delivered; Murray Hill; deluxe box" />
-</div>
-
-<button id="identifyBtn">Identify Fish</button>
-
-<div class="card">
-  <label>Result</label>
-  <pre id="result"> </pre>
-  <div class="err" id="err"></div>
-</div>
+    <section class="card">
+      <label>Result</label>
+      <pre id="out">(no result)</pre>
+      <div id="err" class="err"></div>
+    </section>
+  </div>
 
 <script>
-/*** ====== SET THESE ====== ***/
-const apiKey    = "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";     // <- your full key EXACTLY as in the dashboard
-const projectId = "";                       // <- optional: "proj_XXXX..." if you have it
-let   modelName = "gpt-4o-mini";            // start with 4o-mini; switch to "gpt-4o" once working
-/*** ======================== ***/
+const WORKER_URL = "https://sushi-worker.mheusler65.workers.dev"; // <-- change if your worker URL is different
 
-const fileInput = document.getElementById('file');
-const preview   = document.getElementById('preview');
-const resultEl  = document.getElementById('result');
-const errEl     = document.getElementById('err');
-const btn       = document.getElementById('identifyBtn');
-const statusEl  = document.getElementById('status');
+const fileEl = document.getElementById('file');
+const previewEl = document.getElementById('preview');
+const ctxEl = document.getElementById('context');
+const outEl = document.getElementById('out');
+const errEl = document.getElementById('err');
+const btn = document.getElementById('goBtn');
 
-// Show a tiny masked-key status so we know the page is fresh and sees your key
-(function showStatus(){
-  const mask = (s) => (typeof s === "string" && s.length >= 6) ? (s.slice(0, 6) + "•••") : "(none)";
-  statusEl.textContent = `Key ${mask(apiKey)} | Model ${modelName} | Project header: ${projectId ? "on" : "off"}`;
-})();
-
-fileInput.addEventListener('change', () => {
-  const f = fileInput.files[0];
+fileEl.addEventListener('change', () => {
+  const f = fileEl.files[0];
   if (!f) return;
-  preview.src = URL.createObjectURL(f);
-  preview.style.display = 'block';
+  previewEl.src = URL.createObjectURL(f);
+  previewEl.style.display = 'block';
 });
 
 btn.addEventListener('click', async () => {
-  errEl.textContent = '';
-  const f = fileInput.files[0];
-  if (!f) { errEl.textContent = "Please upload a sushi photo first."; return; }
+  errEl.textContent = "";
+  const f = fileEl.files[0];
+  if (!f) { errEl.textContent = "Please choose a sushi photo first."; return; }
 
-  resultEl.textContent = "Identifying fish…";
-
-  const base64 = await toBase64(f);
-  const context = document.getElementById('context').value;
-
-  const prompt = `
-You’re a ruthless, accurate sushi spotter. One photo, one output.
-
-STYLE:
-- Crisp bullets, zero fluff.
-- NYC snark is fine, but keep it useful.
-- Never write “no toro” unless toro is explicitly mentioned by the user.
-
-OUTPUT FORMAT (match exactly):
-Row 1:
-1) <fish/item> — <garnish/sauce/notes>
-2) ...
-Row 2:
-...
-Notes:
-- ...
-- ...
-
-RULES (read carefully):
-- First, silently count TOTAL pieces (incl. rolls) and make sure your breakdown covers them all.
-- Go row-by-row (top→bottom), left→right. Number every piece.
-- If multiple in the SAME ROW are visually identical (same fish, same garnish), write “n× <fish> — <garnish>”.
-- Do NOT merge across rows unless they’re visually identical.
-- Use sushi-specific cues over guessing.
-- Mention toro only if present.
-- Notes: 2–3 bullets, punchy: quality cues (cut, rice temp/seasoning), garnish oddities, obvious omissions.
-
-Extra context (may help accuracy): ${context}
-`;
+  btn.disabled = true;
+  outEl.textContent = "Analyzing…";
 
   try {
-    const headers = {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`
-    };
-    if (projectId) headers["OpenAI-Project"] = projectId;
+    const base64 = await toDataURL(f);
+    const context = ctxEl.value || "";
 
-    const resp = await fetch("https://api.openai.com/v1/chat/completions", {
+    const resp = await fetch(WORKER_URL, {
       method: "POST",
-      headers,
-      body: JSON.stringify({
-        model: modelName,
-        temperature: 0.1,
-        messages: [
-          { role: "system", content: "You are a sushi expert who visually identifies fish in photos with high precision." },
-          { role: "user", content: [
-              { type: "text", text: prompt },
-              { type: "image_url", image_url: { url: base64 } }
-            ] }
-        ],
-        max_tokens: 700
-      })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ imageDataUrl: base64, context })
     });
 
     const data = await resp.json();
     if (!resp.ok) {
-      errEl.textContent = `API error (${resp.status}): ${data?.error?.message || resp.statusText}`;
-      resultEl.textContent = "";
-      // If 404/permission/model issue, try fallback model once
-      if (resp.status === 404 || /model/i.test(String(data?.error?.message||""))) {
-        modelName = "gpt-4o-mini";
-        statusEl.textContent = `Key ${apiKey.slice(0,6)}••• | Model ${modelName} | Project header: ${projectId ? "on" : "off"}`;
-      }
+      errEl.textContent = `API error (${resp.status}): ${data?.error || "Unknown error"}`;
+      outEl.textContent = "";
       return;
     }
-
-    const text = data?.choices?.[0]?.message?.content?.trim();
-    resultEl.textContent = text || JSON.stringify(data, null, 2);
-
+    outEl.textContent = (data?.result || "").trim() || "(no result)";
   } catch (e) {
     errEl.textContent = "Request failed: " + (e?.message || String(e));
-    resultEl.textContent = "";
+    outEl.textContent = "";
+  } finally {
+    btn.disabled = false;
   }
 });
 
-function toBase64(file) {
+function toDataURL(file){
   return new Promise((resolve, reject) => {
     const r = new FileReader();
-    r.readAsDataURL(file);
     r.onload = () => resolve(r.result);
     r.onerror = reject;
+    r.readAsDataURL(file);
   });
 }
 </script>
-
 </body>
 </html>
