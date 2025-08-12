@@ -1,148 +1,148 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>The Raw Report — Sushi Fish ID</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>🐟 The Raw Report — Sushi Fish ID</title>
 <style>
-  :root { font-family: -apple-system, system-ui, Segoe UI, Roboto, Arial; }
-  body { margin: 24px; max-width: 940px; background: #fafafa; }
-  h1 { margin: 8px 0; text-align: center; }
-  .sub { color:#6b7280; margin:0 0 16px; text-align:center; }
-  .card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; margin: 12px 0; background: #fff; }
-  label { display:block; font-size:14px; margin:8px 0 6px; color:#374151; }
-  input[type="file"], input[type="password"], input[type="text"] {
-    width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 14px;
+  :root {
+    font-family: -apple-system, system-ui, Segoe UI, Roboto, Arial;
+    background-color: #1b1b1b;
+    color: #e0e0e0;
   }
-  #preview { display:none; max-width:100%; border-radius:10px; margin-top:10px; }
-  button { padding: 10px 14px; border: 1px solid #111827; background:#111827; color:#fff; border-radius:10px; font-weight:600; cursor:pointer; }
-  button:disabled { opacity:.55; cursor:default; }
-  .row { display:flex; gap:12px; flex-wrap: wrap; align-items: center; }
-  .muted { color:#6b7280; font-size:13px; }
-  pre { white-space: pre-wrap; word-break: break-word; font: 15px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; margin: 0; background:#f9fafb; border-radius:8px; padding:12px; min-height:180px; }
-  .pill { font-size:12px; border:1px solid #d1d5db; border-radius:999px; padding:4px 8px; color:#374151; background:#f9fafb; }
-  .error { background:#fff8f8; border:1px solid #f3b1b1; color:#8b0000; padding:10px; border-radius:8px; display:none; }
-  .ok { background:#f6fff8; border:1px solid #b6e3c6; color:#065f46; padding:10px; border-radius:8px; display:none; }
-  .logo { display:block; margin: 0 auto 12px; max-width: 200px; }
+  body {
+    margin: 0 auto;
+    max-width: 900px;
+    padding: 20px;
+    text-align: center;
+  }
+  img.logo {
+    max-width: 200px;
+    margin-bottom: 15px;
+  }
+  h1 {
+    margin: 5px 0 15px;
+    color: #39ff14; /* neon green */
+  }
+  p {
+    color: #bbb;
+  }
+  .card {
+    border: 1px solid #39ff14;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 12px 0;
+    background: #2a2a2a;
+  }
+  label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #ff2fd0; /* neon pink */
+  }
+  input[type="file"],
+  input[type="text"] {
+    width: 100%;
+    margin-bottom: 10px;
+    background: #111;
+    color: #fff;
+    border: 1px solid #444;
+    padding: 8px;
+    border-radius: 6px;
+  }
+  button {
+    background: #39ff14;
+    color: #000;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  button:hover {
+    background: #2ddc0e;
+  }
+  #preview {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-top: 10px;
+  }
+  pre {
+    text-align: left;
+    white-space: pre-wrap;
+    background: #111;
+    color: #fff;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #444;
+  }
 </style>
 </head>
 <body>
 
-<!-- Raw Report Logo -->
-<img class="logo" alt="The Raw Report Logo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QCMRXhpZgAATU0AKgAAAAgABQESAAMAAAABAAEAAAEaAAUAAAABAAAASgEbAAUAAAABAAAAUgEoAAMAAAABAAIAAIdpAAQAAAABAAAAWgAAAAAAAABIAAAAAQAAAEgAAAABAAOgAQADAAAAAf//AACgAgAEAAAAAQAAA3ygAwAEAAAAAQAAA3IAAAAA/+0AOFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAAAOEJJTQQlAAAAAAAQ1B2M2Y8AsgTpgAmY7PhCfv/iAihJQ0NfUFJPRklMRQABAQAAAhhhcHBsBAAAAG1udHJSR0IgWFlaIAfmAAEAAQAAAAAAAGFjc3BBUFBMAAAAAEFQUEwAAAAAAAAAAAAAAAAAAAAAAAD21gABAAAAANMtYXBwbOz9o444hUfDbbS9T3raGC8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACmRlc2MA" />
+<!-- Logo embedded as Base64 -->
+<img 
+  class="logo" 
+  alt="The Raw Report Logo" 
+  src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QCMRXhpZgAATU0AKgAAAAgABQESAAMAAAABAAEAAAEaAAUAAAABAAAASgEbAAUAAAABAAAAUgEoAAMAAAABAAIAAIdpAAQAAAABAAAAWgAAAAAAAABIAAAAAQAAAEgAAAABAAOgAQADAAAAAf//AACgAgAEAAAAAQAAA3ygAwAEAAAAAQAAA3IAAAAA/+0AOFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAAAOEJJTQQlAAAAAAAQ1B2M2Y8AsgTpgAmY7PhCfv/iAihJQ0NfUFJPRklMRQABAQAAAhhhcHBsBAAAAG1udHJSR0IgWFlaIAfmAAEAAQAAAAAAAGFjc3BBUFBMAAAAAEFQUEwAAAAAAAAAAAAAAAAAAAAAAAD21gABAAAAANMtYXBwbOz9o444hUfDbbS9T3raGC8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACmRlc2MA" 
+/>
 
 <h1>🐟 The Raw Report — Sushi Fish ID</h1>
-<p class="sub">Upload a sushi box photo → get a left-to-right, row-by-row breakdown of fish & garnishes. One mode. No drawing.</p>
+<p>Upload a sushi box photo → get a left-to-right, row-by-row breakdown of fish & garnishes.</p>
 
-<div class="card">
-  <label>OpenAI API key <span class="muted">(stays in this page only)</span></label>
-  <input id="apiKey" type="password" placeholder="sk-..." autocomplete="off" />
-  <div class="row" style="margin-top:8px">
-    <span class="pill">Tip: we’ll add a backend later to hide your key</span>
-  </div>
-</div>
-
+<!-- Upload sushi photo -->
 <div class="card">
   <label>Upload sushi photo</label>
-  <input id="fileInput" type="file" accept="image/*" />
-  <img id="preview" alt="preview" />
-  <div class="muted" style="margin-top:6px">iPad: choose Photo Library or Browse.</div>
+  <input id="file" type="file" accept="image/*" />
+  <img id="preview" alt="Preview" />
 </div>
 
+<!-- Optional context -->
 <div class="card">
   <label>Optional context (helps accuracy)</label>
-  <input id="context" type="text" placeholder="e.g., came with tuna roll + miso, $48 delivered; Murray Hill; deluxe box" />
+  <input id="context" type="text" placeholder="e.g., came with tuna roll + miso; $48 delivered; Murray Hill; deluxe box" />
 </div>
 
-<div class="card">
-  <div class="row">
-    <button id="analyzeBtn">Identify Fish</button>
-    <span id="status" class="muted"></span>
-  </div>
-  <div id="err" class="error" style="margin-top:10px"></div>
-  <div id="ok" class="ok" style="margin-top:10px"></div>
-</div>
+<!-- Identify button -->
+<button id="identifyBtn">Identify Fish</button>
 
+<!-- Result -->
 <div class="card">
   <label>Result</label>
-  <pre id="out">(Results will appear here)</pre>
-  <div class="row" style="margin-top:10px">
-    <button id="copyBtn">Copy</button>
-    <span class="muted" id="copyStatus"></span>
-  </div>
+  <pre id="result"></pre>
 </div>
 
 <script>
-const $ = (id) => document.getElementById(id);
-const fileInput = $('fileInput');
-const preview = $('preview');
-const analyzeBtn = $('analyzeBtn');
-const out = $('out');
-const statusEl = $('status');
-const err = $('err');
-const ok = $('ok');
-const copyBtn = $('copyBtn');
-const copyStatus = $('copyStatus');
+const apiKey = "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"; // 🔹 Replace with your real key
+
+const fileInput = document.getElementById('file');
+const preview = document.getElementById('preview');
+const result = document.getElementById('result');
+const identifyBtn = document.getElementById('identifyBtn');
 
 fileInput.addEventListener('change', () => {
-  const f = fileInput.files?.[0];
-  if (!f) return;
-  const url = URL.createObjectURL(f);
-  preview.src = url;
+  const file = fileInput.files[0];
+  if (!file) return;
+  preview.src = URL.createObjectURL(file);
   preview.style.display = 'block';
 });
 
-copyBtn.addEventListener('click', async () => {
-  try {
-    await navigator.clipboard.writeText(out.textContent || '');
-    copyStatus.textContent = 'Copied.';
-    setTimeout(()=>copyStatus.textContent='', 1500);
-  } catch(e) {
-    copyStatus.textContent = 'Copy failed — select and copy manually.';
-    setTimeout(()=>copyStatus.textContent='', 2000);
+identifyBtn.addEventListener('click', async () => {
+  const file = fileInput.files[0];
+  if (!file) {
+    alert("Please upload a sushi photo first.");
+    return;
   }
-});
 
-function uiWorking(isWorking, msg='') {
-  analyzeBtn.disabled = isWorking;
-  statusEl.textContent = msg;
-  err.style.display = 'none';
-  ok.style.display = 'none';
-}
+  result.textContent = "Identifying fish...";
+  
+  const base64 = await toBase64(file);
+  const context = document.getElementById('context').value;
 
-function showError(message) {
-  err.textContent = message;
-  err.style.display = 'block';
-}
+  const prompt = `
+You are identifying sushi pieces in ONE photo.
 
-function showOk(message) {
-  ok.textContent = message;
-  ok.style.display = 'block';
-}
-
-async function fileToDataURL(file) {
-  return new Promise((res, rej) => {
-    const reader = new FileReader();
-    reader.onload = () => res(reader.result);
-    reader.onerror = rej;
-    reader.readAsDataURL(file);
-  });
-}
-
-async function identifyFish() {
-  const key = $('apiKey').value.trim();
-  if (!key) throw new Error('Missing API key.');
-  const f = fileInput.files?.[0];
-  if (!f) throw new Error('Please choose an image first.');
-
-  const dataUrl = await fileToDataURL(f);
-  const userContext = $('context').value.trim();
-
-  const systemPrompt = `You are a precise sushi identification expert. Identify nigiri/sashimi/roll pieces and garnishes in a single photo. Be exact and conservative.`;
-
-  const userPrompt = `
-Count the total sushi pieces first (including rolls). Then output:
-
+OUTPUT FORMAT:
 Row 1:
 1) <fish/item> — <garnish/sauce/notes>
 2) ...
@@ -152,66 +152,63 @@ Notes:
 - ...
 - ...
 
-Rules:
-- Go row-by-row (top→bottom) and left-to-right.
-- Number each piece. If two+ pieces in the same row are visually identical, write "n× <fish> — ..." instead of repeating.
-- NEVER merge across rows unless truly identical visually and garnish.
-- Use sushi-specific traits to distinguish fluke, snapper, hamachi, escolar, etc.
+RULES:
+- Count total pieces first (including rolls) and ensure your breakdown covers them all.
+- Go row-by-row (top to bottom), left-to-right.
+- Number each piece. If multiple identical pieces are in the same row, use "n× <fish> — ..." instead of repeating.
+- Do NOT merge across rows unless they are visually identical with the same garnish.
 - If uncertain, say "likely <fish>" and ONE alternative in parentheses.
-- Mention if any toro is present.
-- End with 2–4 concise Notes on quality, garnish oddities, missing expected items, etc.
-Context from user: ${userContext || '(none)'}
+- Use sushi-specific visual cues:
+    • Salmon (sake): orange with white fat lines; belly has more marbling.
+    • Tuna (maguro): deep red; chutoro is pink marbled; otoro is pale pink with heavy marbling.
+    • Yellowtail (hamachi): beige-pink with a darker edge near skin.
+    • Fluke (hirame): translucent white with fine grain.
+    • Snapper (tai): translucent with red skin edge or crosshatch pattern.
+    • Mackerel (saba): silver skin with stripes; often vinegared.
+    • Escolar (butterfish): opaque white, dense texture.
+    • Scallop (hotate): round, glossy white; torched if surface browned.
+- Mention if toro is present, but do NOT state "no toro" if absent.
+- Keep Notes section short (2–3 bullets), in a casual Raw Report tone (e.g., "Cuts are tight", "Rice a bit cold", "Garnish game strong").
+Extra context (may help accuracy): ${context}
 `;
 
-  const body = {
-    model: "gpt-4o",
-    temperature: 0.1,
-    messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: [
-          { type: "text", text: userPrompt },
-          { type: "image_url", image_url: { url: dataUrl } }
-        ]
-      }
-    ]
-  };
-
-  const resp = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${key}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(body)
-  });
-
-  if (!resp.ok) {
-    let msg = `${resp.status} ${resp.statusText}`;
-    try { const j = await resp.json(); msg += ` — ${j.error?.message || ''}` } catch {}
-    throw new Error(`OpenAI API error: ${msg}`);
-  }
-
-  const j = await resp.json();
-  const text = j.choices?.[0]?.message?.content?.trim() || '(no result)';
-  return text;
-}
-
-analyzeBtn.addEventListener('click', async () => {
-  out.textContent = '';
-  uiWorking(true, 'Analyzing…');
   try {
-    const result = await identifyFish();
-    out.textContent = result;
-    showOk('Done');
-  } catch (e) {
-    showError(e.message || String(e));
-  } finally {
-    uiWorking(false, '');
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: "You are a sushi expert who can visually identify fish types from photos." },
+          { role: "user", content: [
+            { type: "text", text: prompt },
+            { type: "image_url", image_url: { url: base64 } }
+          ]}
+        ],
+        max_tokens: 500
+      })
+    });
+
+    const data = await response.json();
+    result.textContent = data.choices?.[0]?.message?.content || "No result.";
+  } catch (err) {
+    console.error(err);
+    result.textContent = "Error identifying fish.";
   }
 });
 
-window.addEventListener('error', e => { showError(e.message); });
-window.addEventListener('unhandledrejection', e => { showError(String(e.reason || e)); });
+function toBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+  });
+}
 </script>
+
 </body>
 </html>
