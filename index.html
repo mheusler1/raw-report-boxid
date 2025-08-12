@@ -6,64 +6,71 @@
 <title>The Raw Report — Sushi Fish ID</title>
 <style>
   :root { font-family: -apple-system, system-ui, Segoe UI, Roboto, Arial; }
-  body { margin: 24px; max-width: 860px; }
-  h1 { margin: 0 0 8px; }
-  .sub { color:#6b7280; margin:0 0 16px; }
+  body { margin: 24px; max-width: 940px; background: #fafafa; }
+  h1 { margin: 8px 0; text-align: center; }
+  .sub { color:#6b7280; margin:0 0 16px; text-align:center; }
   .card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; margin: 12px 0; background: #fff; }
   label { display:block; font-size:14px; margin:8px 0 6px; color:#374151; }
-  input[type="file"], input[type="password"], input[type="text"] { width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 14px; }
+  input[type="file"], input[type="password"], input[type="text"] {
+    width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 14px;
+  }
   #preview { display:none; max-width:100%; border-radius:10px; margin-top:10px; }
   button { padding: 10px 14px; border: 1px solid #111827; background:#111827; color:#fff; border-radius:10px; font-weight:600; cursor:pointer; }
   button:disabled { opacity:.55; cursor:default; }
   .row { display:flex; gap:12px; flex-wrap: wrap; align-items: center; }
   .muted { color:#6b7280; font-size:13px; }
-  pre { white-space: pre-wrap; word-break: break-word; font: 14px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; margin: 0; }
+  pre { white-space: pre-wrap; word-break: break-word; font: 15px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; margin: 0; background:#f9fafb; border-radius:8px; padding:12px; min-height:180px; }
   .pill { font-size:12px; border:1px solid #d1d5db; border-radius:999px; padding:4px 8px; color:#374151; background:#f9fafb; }
   .error { background:#fff8f8; border:1px solid #f3b1b1; color:#8b0000; padding:10px; border-radius:8px; display:none; }
   .ok { background:#f6fff8; border:1px solid #b6e3c6; color:#065f46; padding:10px; border-radius:8px; display:none; }
+  .logo { display:block; margin: 0 auto 12px; max-width: 200px; }
 </style>
 </head>
 <body>
-  <h1>🐟 The Raw Report — Sushi Fish ID</h1>
-  <p class="sub">Upload a sushi box photo → get a left‑to‑right, row‑by‑row breakdown of fish & garnishes. One mode. No drawing.</p>
 
-  <div class="card">
-    <label>OpenAI API key <span class="muted">(stays in this page only)</span></label>
-    <input id="apiKey" type="password" placeholder="sk-..." autocomplete="off" />
-    <div class="row" style="margin-top:8px">
-      <span class="pill">Tip: we’ll add a backend later to hide your key</span>
-    </div>
-  </div>
+<!-- Raw Report Logo -->
+<img class="logo" alt="The Raw Report Logo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QCMRXhpZgAATU0AKgAAAAgABQESAAMAAAABAAEAAAEaAAUAAAABAAAASgEbAAUAAAABAAAAUgEoAAMAAAABAAIAAIdpAAQAAAABAAAAWgAAAAAAAABIAAAAAQAAAEgAAAABAAOgAQADAAAAAf//AACgAgAEAAAAAQAAA3ygAwAEAAAAAQAAA3IAAAAA/+0AOFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAAAOEJJTQQlAAAAAAAQ1B2M2Y8AsgTpgAmY7PhCfv/iAihJQ0NfUFJPRklMRQABAQAAAhhhcHBsBAAAAG1udHJSR0IgWFlaIAfmAAEAAQAAAAAAAGFjc3BBUFBMAAAAAEFQUEwAAAAAAAAAAAAAAAAAAAAAAAD21gABAAAAANMtYXBwbOz9o444hUfDbbS9T3raGC8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACmRlc2MA" />
 
-  <div class="card">
-    <label>Upload sushi photo</label>
-    <input id="fileInput" type="file" accept="image/*" />
-    <img id="preview" alt="preview" />
-    <div class="muted" style="margin-top:6px">iPad: choose Photo Library or Browse.</div>
-  </div>
+<h1>🐟 The Raw Report — Sushi Fish ID</h1>
+<p class="sub">Upload a sushi box photo → get a left-to-right, row-by-row breakdown of fish & garnishes. One mode. No drawing.</p>
 
-  <div class="card">
-    <label>Optional context (helps accuracy)</label>
-    <input id="context" type="text" placeholder="e.g., came with tuna roll + miso, $48 delivered; Murray Hill; deluxe box" />
+<div class="card">
+  <label>OpenAI API key <span class="muted">(stays in this page only)</span></label>
+  <input id="apiKey" type="password" placeholder="sk-..." autocomplete="off" />
+  <div class="row" style="margin-top:8px">
+    <span class="pill">Tip: we’ll add a backend later to hide your key</span>
   </div>
+</div>
 
-  <div class="card">
-    <div class="row">
-      <button id="analyzeBtn">Identify Fish</button>
-      <span id="status" class="muted"></span>
-    </div>
-    <div id="err" class="error" style="margin-top:10px"></div>
-    <div id="ok" class="ok" style="margin-top:10px"></div>
-  </div>
+<div class="card">
+  <label>Upload sushi photo</label>
+  <input id="fileInput" type="file" accept="image/*" />
+  <img id="preview" alt="preview" />
+  <div class="muted" style="margin-top:6px">iPad: choose Photo Library or Browse.</div>
+</div>
 
-  <div class="card">
-    <label>Result</label>
-    <pre id="out">(Results will appear here)</pre>
-    <div class="row" style="margin-top:10px">
-      <button id="copyBtn">Copy</button>
-      <span class="muted" id="copyStatus"></span>
-    </div>
+<div class="card">
+  <label>Optional context (helps accuracy)</label>
+  <input id="context" type="text" placeholder="e.g., came with tuna roll + miso, $48 delivered; Murray Hill; deluxe box" />
+</div>
+
+<div class="card">
+  <div class="row">
+    <button id="analyzeBtn">Identify Fish</button>
+    <span id="status" class="muted"></span>
   </div>
+  <div id="err" class="error" style="margin-top:10px"></div>
+  <div id="ok" class="ok" style="margin-top:10px"></div>
+</div>
+
+<div class="card">
+  <label>Result</label>
+  <pre id="out">(Results will appear here)</pre>
+  <div class="row" style="margin-top:10px">
+    <button id="copyBtn">Copy</button>
+    <span class="muted" id="copyStatus"></span>
+  </div>
+</div>
 
 <script>
 const $ = (id) => document.getElementById(id);
@@ -122,7 +129,6 @@ async function fileToDataURL(file) {
   });
 }
 
-// Core: call OpenAI Vision with image as data URL
 async function identifyFish() {
   const key = $('apiKey').value.trim();
   if (!key) throw new Error('Missing API key.');
@@ -132,41 +138,34 @@ async function identifyFish() {
   const dataUrl = await fileToDataURL(f);
   const userContext = $('context').value.trim();
 
-  // System + user prompts tuned for your exact format
-  const systemPrompt = `You are a precise sushi expert. Identify nigiri/sashimi/roll pieces and garnishes in a single photo. 
-Return ONLY the analysis in the requested format. Be conservative: if uncertain, say "likely" or "unclear".`;
+  const systemPrompt = `You are a precise sushi identification expert. Identify nigiri/sashimi/roll pieces and garnishes in a single photo. Be exact and conservative.`;
 
   const userPrompt = `
-Analyze this single photo of a sushi box. I need a clean, copy-ready breakdown.
+Count the total sushi pieces first (including rolls). Then output:
 
-Rules:
-- Go row by row, top to bottom. Within each row go left to right.
-- Number the rows and the pieces.
-- For each piece, name the fish (or item) and any visible garnish/sauce (e.g., yuzu kosho, scallion, jalapeño, lemon, tobiko, grated ginger, shiso, sesame, eel sauce).
-- Call out duplicates explicitly (e.g., "2x Hamachi").
-- If pieces are torched/seared, say so.
-- If you're unsure, say "likely" and give 1 alternative.
-- At the end, add a short "Notes" section (2–4 bullets) with quality cues (rice warmth, cut quality, color/fat marbling, odd garnishes), and any obvious omissions (e.g., no toro).
-
-Context from user (may help but is optional): ${userContext || '(none)'}.
-
-FORMAT (exactly):
 Row 1:
-1) ...
+1) <fish/item> — <garnish/sauce/notes>
 2) ...
 Row 2:
-1) ...
-2) ...
-Row 3:
-1) ...
-2) ...
+...
 Notes:
 - ...
-- ...`;
+- ...
+
+Rules:
+- Go row-by-row (top→bottom) and left-to-right.
+- Number each piece. If two+ pieces in the same row are visually identical, write "n× <fish> — ..." instead of repeating.
+- NEVER merge across rows unless truly identical visually and garnish.
+- Use sushi-specific traits to distinguish fluke, snapper, hamachi, escolar, etc.
+- If uncertain, say "likely <fish>" and ONE alternative in parentheses.
+- Mention if any toro is present.
+- End with 2–4 concise Notes on quality, garnish oddities, missing expected items, etc.
+Context from user: ${userContext || '(none)'}
+`;
 
   const body = {
-    model: "gpt-4o-mini",
-    temperature: 0.2,
+    model: "gpt-4o",
+    temperature: 0.1,
     messages: [
       { role: "system", content: systemPrompt },
       { role: "user", content: [
@@ -211,13 +210,8 @@ analyzeBtn.addEventListener('click', async () => {
   }
 });
 
-// Crash catcher (renders errors on-page)
-window.addEventListener('error', e => {
-  showError(e.message);
-});
-window.addEventListener('unhandledrejection', e => {
-  showError(String(e.reason || e));
-});
+window.addEventListener('error', e => { showError(e.message); });
+window.addEventListener('unhandledrejection', e => { showError(String(e.reason || e)); });
 </script>
 </body>
 </html>
