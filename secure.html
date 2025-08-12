@@ -1,1 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Raw Report Sushi ID (Secure)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body {
+    background: #111;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 20px;
+  }
+  img { max-width: 90%; margin: 20px 0; }
+  input, button { font-size: 1rem; margin: 10px; }
+  .logo { max-width: 200px; margin-top: 10px; }
+</style>
+</head>
+<body>
+  <img src="logo.jpg" alt="Raw Report Logo" class="logo">
+  <h1>Sushi Box Identifier</h1>
+  <p><em>If it needs spicy mayo, it’s probably trash.</em></p>
 
+  <input type="file" id="fileInput" accept="image/*"><br>
+  <button id="analyzeBtn">Identify Fish</button>
+  <pre id="result" style="white-space: pre-wrap; text-align:left;"></pre>
+
+<script>
+document.getElementById('analyzeBtn').addEventListener('click', async () => {
+  const file = document.getElementById('fileInput').files[0];
+  if (!file) {
+    alert("Please choose a photo first.");
+    return;
+  }
+  const reader = new FileReader();
+  reader.onloadend = async () => {
+    const base64 = reader.result;
+    document.getElementById('result').textContent = "Analyzing...";
+    try {
+      const resp = await fetch("/api/identify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageDataUrl: base64 })
+      });
+      const data = await resp.json();
+      if (!resp.ok) {
+        document.getElementById('result').textContent = `Error: ${data?.error || 'Unknown error'}`;
+        return;
+      }
+      document.getElementById('result').textContent = data?.text || "(no result)";
+    } catch (e) {
+      document.getElementById('result').textContent = `Request failed: ${e}`;
+    }
+  };
+  reader.readAsDataURL(file);
+});
+</script>
+</body>
+</html>
