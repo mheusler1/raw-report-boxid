@@ -7,7 +7,8 @@
 <style>
   :root { font-family: -apple-system, system-ui, Segoe UI, Roboto, Arial; background:#1b1b1b; color:#e0e0e0; }
   body { margin:0 auto; max-width:900px; padding:20px; text-align:center; }
-  img.logo { max-width:200px; margin:0 auto 15px; display:block; }
+  img.logo { max-width:200px; margin:0 auto 5px; display:block; }
+  .tagline { font-size:0.9rem; color:#ff2fd0; margin-bottom:20px; }
   h1 { margin:6px 0 14px; color:#39ff14; }
   p  { color:#bbb; }
   .card { border:1px solid #39ff14; border-radius:12px; padding:16px; margin:12px 0; background:#2a2a2a; }
@@ -26,9 +27,10 @@
 
 <!-- Logo file must exist in repo root as raw-report-logo.jpg -->
 <img src="raw-report-logo.jpg" alt="The Raw Report Logo" class="logo" />
+<div class="tagline">If it needs spicy mayo, it’s probably trash.</div>
 
 <h1>🐟 The Raw Report — Sushi Fish ID</h1>
-<p>Upload a sushi box photo → get a left‑to‑right, row‑by‑row breakdown of fish & garnishes.</p>
+<p>Upload a sushi box photo → get a left-to-right, row-by-row breakdown of fish & garnishes.</p>
 
 <div class="card">
   <label>Upload sushi photo</label>
@@ -76,9 +78,14 @@ btn.addEventListener('click', async () => {
   const context = document.getElementById('context').value;
 
   const prompt = `
-You are identifying sushi pieces in ONE photo.
+You’re a ruthless, accurate sushi spotter. One photo, one output.
 
-OUTPUT FORMAT:
+STYLE:
+- Crisp bullets, zero fluff.
+- NYC snark is fine, but keep it useful.
+- Never write “no toro” unless toro is explicitly mentioned by the user.
+
+OUTPUT FORMAT (match exactly):
 Row 1:
 1) <fish/item> — <garnish/sauce/notes>
 2) ...
@@ -88,23 +95,24 @@ Notes:
 - ...
 - ...
 
-RULES:
-- Count total pieces first (including rolls) and ensure your breakdown covers them all.
-- Go row-by-row (top to bottom), left-to-right.
-- Number each piece. If multiple identical pieces are in the same row, write "n× <fish> — ..." instead of repeating.
-- Do NOT merge across rows unless they are visually identical with the same garnish.
-- If uncertain, say "likely <fish>" and ONE alternative in parentheses.
-- Use sushi-specific visual cues:
-  • Salmon (sake): orange with white fat lines; belly has more marbling.
-  • Tuna (maguro): deep red; chutoro is pink marbled; otoro is pale pink with heavy marbling.
-  • Yellowtail (hamachi): beige‑pink with a darker edge near skin.
-  • Fluke (hirame): translucent white with fine grain.
-  • Snapper (tai): translucent with red skin edge or crosshatch.
-  • Mackerel (saba): silver skin with stripes; often vinegared.
+RULES (read carefully):
+- First, silently count TOTAL pieces (incl. rolls) and make sure your breakdown covers them all.
+- Go row-by-row (top→bottom), left→right. Number every piece.
+- If multiple in the SAME ROW are visually identical (same fish, same garnish), write “n× <fish> — <garnish>”.
+- Do NOT merge across rows unless they’re visually identical.
+- Use sushi-specific cues over guessing:
+  • Salmon (sake): orange + white fat lines; belly = heavier marbling.
+  • Tuna (maguro): deep red; chutoro = pink marbled; otoro = pale pink, heavy marbling.
+  • Yellowtail (hamachi): beige-pink, darker edge near skin.
+  • Fluke (hirame): translucent white, fine grain.
+  • Snapper (tai): translucent white with red skin edge/crosshatch.
+  • Mackerel (saba): silver skin, striping; often vinegared.
   • Escolar (butterfish): opaque white, dense texture.
-  • Scallop (hotate): round, glossy white; torched if surface browned.
-- Mention if toro is present, but do NOT state "no toro" if absent.
-- Keep Notes short (2–3 bullets) in a Raw Report tone.
+  • Scallop (hotate): round glossy medallion; torched if browned.
+- If uncertain, say “likely <fish> (or <alt>)” — ONE alternative only.
+- Mention toro only if present.
+- Notes: 2–3 bullets, punchy: quality cues (cut, rice temp/seasoning), garnish oddities, obvious omissions (e.g., “heavy on white fish,” “no premium cuts visible”).
+
 Extra context (may help accuracy): ${context}
 `;
 
