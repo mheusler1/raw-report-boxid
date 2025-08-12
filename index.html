@@ -8,7 +8,8 @@
   :root { font-family: -apple-system, system-ui, Segoe UI, Roboto, Arial; background:#1b1b1b; color:#e0e0e0; }
   body { margin:0 auto; max-width:900px; padding:20px; text-align:center; }
   img.logo { max-width:200px; margin:0 auto 5px; display:block; }
-  .tagline { font-size:0.9rem; color:#ff2fd0; margin-bottom:20px; }
+  .tagline { font-size:0.9rem; color:#ff2fd0; margin-bottom:14px; }
+  .status { font-size:.8rem; color:#bbb; margin:6px 0 14px; }
   h1 { margin:6px 0 14px; color:#39ff14; }
   p  { color:#bbb; }
   .card { border:1px solid #39ff14; border-radius:12px; padding:16px; margin:12px 0; background:#2a2a2a; }
@@ -28,6 +29,8 @@
 <!-- Logo file must exist in repo root as raw-report-logo.jpg -->
 <img src="raw-report-logo.jpg" alt="The Raw Report Logo" class="logo" />
 <div class="tagline">If it needs spicy mayo, it’s probably trash.</div>
+
+<div id="status" class="status"></div>
 
 <h1>🐟 The Raw Report — Sushi Fish ID</h1>
 <p>Upload a sushi box photo → get a left-to-right, row-by-row breakdown of fish & garnishes.</p>
@@ -52,13 +55,24 @@
 </div>
 
 <script>
-const apiKey = "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"; // <-- Replace with your working key
+/*** ====== SET THESE ====== ***/
+const apiKey    = "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";     // <- your full key EXACTLY as in the dashboard
+const projectId = "";                       // <- optional: "proj_XXXX..." if you have it
+let   modelName = "gpt-4o-mini";            // start with 4o-mini; switch to "gpt-4o" once working
+/*** ======================== ***/
 
 const fileInput = document.getElementById('file');
 const preview   = document.getElementById('preview');
 const resultEl  = document.getElementById('result');
 const errEl     = document.getElementById('err');
 const btn       = document.getElementById('identifyBtn');
+const statusEl  = document.getElementById('status');
+
+// Show a tiny masked-key status so we know the page is fresh and sees your key
+(function showStatus(){
+  const mask = (s) => (typeof s === "string" && s.length >= 6) ? (s.slice(0, 6) + "•••") : "(none)";
+  statusEl.textContent = `Key ${mask(apiKey)} | Model ${modelName} | Project header: ${projectId ? "on" : "off"}`;
+})();
 
 fileInput.addEventListener('change', () => {
   const f = fileInput.files[0];
@@ -108,14 +122,17 @@ Extra context (may help accuracy): ${context}
 `;
 
   try {
+    const headers = {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiKey}`
+    };
+    if (projectId) headers["OpenAI-Project"] = projectId;
+
     const resp = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
-      },
+      headers,
       body: JSON.stringify({
-        model: "gpt-4o",
+        model: modelName,
         temperature: 0.1,
         messages: [
           { role: "system", content: "You are a sushi expert who visually identifies fish in photos with high precision." },
@@ -129,11 +146,14 @@ Extra context (may help accuracy): ${context}
     });
 
     const data = await resp.json();
-
     if (!resp.ok) {
-      const msg = (data && data.error && data.error.message) ? data.error.message : (resp.status + " " + resp.statusText);
-      errEl.textContent = "API error: " + msg;
+      errEl.textContent = `API error (${resp.status}): ${data?.error?.message || resp.statusText}`;
       resultEl.textContent = "";
+      // If 404/permission/model issue, try fallback model once
+      if (resp.status === 404 || /model/i.test(String(data?.error?.message||""))) {
+        modelName = "gpt-4o-mini";
+        statusEl.textContent = `Key ${apiKey.slice(0,6)}••• | Model ${modelName} | Project header: ${projectId ? "on" : "off"}`;
+      }
       return;
     }
 
@@ -141,7 +161,7 @@ Extra context (may help accuracy): ${context}
     resultEl.textContent = text || JSON.stringify(data, null, 2);
 
   } catch (e) {
-    errEl.textContent = "Request failed: " + (e.message || e);
+    errEl.textContent = "Request failed: " + (e?.message || String(e));
     resultEl.textContent = "";
   }
 });
