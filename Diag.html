@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8" />
+<title>Diag</title>
+<style>
+  body { font:16px/1.4 -apple-system,system-ui; padding:24px; }
+  pre { white-space:pre-wrap; }
+</style>
+<h1>Deployment is working ✅</h1>
+<p>If you see this page in your browser, GitHub Pages is set up correctly.  
+If your main sushi page is still blank, the problem is a JavaScript error in your code.</p>
+
+<script>
+// Show ANY runtime error directly on the page
+window.addEventListener('error', e => {
+  document.body.insertAdjacentHTML('beforeend',
+    `<h2>Runtime error</h2>
+     <pre>${e.message}\n${(e.error && e.error.stack) || '[no stack trace]'}</pre>`);
+});
+window.addEventListener('unhandledrejection', e => {
+  document.body.insertAdjacentHTML('beforeend',
+    `<h2>Unhandled Promise rejection</h2>
+     <pre>${e.reason && e.reason.stack || e.reason}</pre>`);
+});
+console.log('Diag page loaded at', new Date().toISOString());
+</script>
