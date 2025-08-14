@@ -19,18 +19,15 @@
     input[type=file]{padding:8px;background:#222;border:1px solid var(--line);border-radius:8px;color:var(--text)}
     button{padding:10px 16px;border-radius:10px;border:1px solid var(--line);background:#222;color:var(--text);cursor:pointer}
     button:disabled{opacity:.6;cursor:not-allowed}
-    textarea{width:100%;min-height:70px;background:#111;border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px}
     #preview{max-width:100%;display:none;border-radius:8px;margin-top:10px;border:1px solid var(--line)}
     pre{white-space:pre-wrap;word-break:break-word;margin:0}
     .hint{color:var(--muted)}
-    .center{text-align:center}
-    footer{margin-top:24px;text-align:center;color:var(--muted)}
   </style>
 </head>
 <body>
   <div class="wrap">
-    <img class="logo" src="logo.png" alt="The Raw Report" onerror="this.style.display='none'">
-    <div class="center tag">If it needs spicy mayo, it’s probably trash.</div>
+    <img class="logo" src="./raw-report-logo.jpg" alt="The Raw Report Logo" />
+    <div class="tag">If it needs spicy mayo, it’s probably trash.</div>
     <h1>🐟 The Raw Report — Sushi Fish ID</h1>
 
     <div class="panel">
@@ -45,74 +42,12 @@
     </div>
 
     <div class="panel">
-      <div class="label">Optional context (helps accuracy)</div>
-      <textarea id="context" placeholder="e.g., Sushi deluxe, Murray Hill, includes tuna roll + miso; $48 delivered"></textarea>
-    </div>
-
-    <div class="panel">
       <div class="label">Result</div>
       <div id="status" class="hint">No analysis yet.</div>
       <pre id="result"></pre>
     </div>
-
-    <footer>Uploads go to our Cloudflare Worker (key is hidden). No login, no paste.</footer>
   </div>
 
-  <script>
-    // === Front-end wiring ===
-    const WORKER = 'https://sushi-worker.mheusler65.workers.dev'; // your Worker origin
-    const fileInput  = document.getElementById('file');
-    const previewBtn = document.getElementById('previewBtn');
-    const analyzeBtn = document.getElementById('analyzeBtn');
-    const preview    = document.getElementById('preview');
-    const statusEl   = document.getElementById('status');
-    const resultEl   = document.getElementById('result');
-    const contextEl  = document.getElementById('context');
-
-    let imageDataUrl = null;
-
-    function loadAsDataURL(file){
-      return new Promise((resolve,reject)=>{
-        const r = new FileReader();
-        r.onload = () => resolve(r.result);
-        r.onerror = reject;
-        r.readAsDataURL(file);
-      });
-    }
-
-    previewBtn.addEventListener('click', async () => {
-      const f = fileInput.files && fileInput.files[0];
-      if(!f){ statusEl.textContent = 'Choose a photo first.'; return; }
-      imageDataUrl = await loadAsDataURL(f);
-      preview.src = imageDataUrl; preview.style.display = 'block';
-      statusEl.textContent = 'Preview loaded.';
-      resultEl.textContent = '';
-    });
-
-    analyzeBtn.addEventListener('click', async () => {
-      const f = fileInput.files && fileInput.files[0];
-      if(!f){ statusEl.textContent = 'Choose a photo first.'; return; }
-      if(!imageDataUrl){ imageDataUrl = await loadAsDataURL(f); preview.src=imageDataUrl; preview.style.display='block'; }
-
-      statusEl.textContent = 'Analyzing…';
-      analyzeBtn.disabled = true;
-      try{
-        const resp = await fetch(WORKER + '/analyze', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ imageDataUrl, context: contextEl.value || '' })
-        });
-        if(!resp.ok) throw new Error('HTTP '+resp.status);
-        const data = await resp.json();
-        statusEl.textContent = 'Done.';
-        resultEl.textContent = data.result ?? JSON.stringify(data, null, 2);
-      }catch(err){
-        statusEl.textContent = 'Error while analyzing.';
-        resultEl.textContent = String(err);
-      }finally{
-        analyzeBtn.disabled = false;
-      }
-    });
-  </script>
+  <script src="./app.js"></script>
 </body>
 </html>
