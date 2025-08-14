@@ -19,9 +19,11 @@
     input[type=file]{padding:8px;background:#222;border:1px solid var(--line);border-radius:8px;color:var(--text)}
     button{padding:10px 16px;border-radius:10px;border:1px solid var(--line);background:#222;color:var(--text);cursor:pointer}
     button:disabled{opacity:.6;cursor:not-allowed}
-    #preview{max-width:100%;display:none;border-radius:8px;margin-top:10px;border:1px solid var(--line)}
+    #previewImg{max-width:100%;display:none;border-radius:8px;margin-top:10px;border:1px solid var(--line)}
     pre{white-space:pre-wrap;word-break:break-word;margin:0}
     .hint{color:var(--muted)}
+    /* keep context present but invisible so existing JS won't crash */
+    #context { display:none; }
   </style>
 </head>
 <body>
@@ -34,12 +36,15 @@
       <div class="label">Upload sushi photo</div>
       <div class="row">
         <input id="file" type="file" accept="image/*">
-        <button id="previewBtn">Preview</button>
-        <button id="analyzeBtn">Identify Fish</button>
+        <button id="preview">Preview</button>
+        <button id="identify">Identify Fish</button>
         <span class="hint">Upload → Identify → piece-by-piece breakdown.</span>
       </div>
-      <img id="preview" alt="preview">
+      <img id="previewImg" alt="preview">
     </div>
+
+    <!-- Hidden optional context so old JS can still read it if needed -->
+    <textarea id="context" placeholder=""></textarea>
 
     <div class="panel">
       <div class="label">Result</div>
@@ -48,6 +53,7 @@
     </div>
   </div>
 
-  <script src="./app.js"></script>
+  <!-- IMPORTANT: use your existing script so the button wiring still works -->
+  <script src="./api/identify.js"></script>
 </body>
 </html>
