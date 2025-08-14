@@ -1,132 +1,47 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>The Raw Report — Sushi Fish ID</title>
-<style>
-  :root { --green:#39ff14; --pink:#ff2fd0; --bg:#121212; --panel:#1d1d1d; --text:#f2f2f2; }
-  *{ box-sizing: border-box; }
-  body{
-    margin:0; background:var(--bg); color:var(--text);
-    font-family:-apple-system, system-ui, Segoe UI, Roboto, Arial;
-  }
-  .wrap{ max-width:980px; margin:0 auto; padding:22px; }
-  header{ text-align:center; margin-bottom:12px; }
-  h1{ margin:.3rem 0; color:var(--green); }
-  .tag{ color:var(--pink); margin:.2rem 0 1rem; font-weight:600; }
-  .card{
-    background:var(--panel); border:1px solid var(--green); border-radius:12px;
-    padding:16px; margin:14px 0;
-  }
-  label{ display:block; font-weight:700; color:var(--pink); margin-bottom:8px; }
-  input[type="file"], input[type="text"]{
-    width:100%; background:#0c0c0c; color:#fff; border:1px solid #3a3a3a; border-radius:8px;
-    padding:10px; outline:none;
-  }
-  button{
-    background:var(--green); color:#000; border:0; padding:10px 16px; font-weight:800;
-    border-radius:8px; cursor:pointer; display:inline-block;
-  }
-  button:disabled{ opacity:.6; cursor:not-allowed; }
-  img.preview{ max-width:100%; border-radius:10px; display:none; margin-top:10px; }
-  pre{
-    background:#0c0c0c; color:#fff; border:1px solid #3a3a3a; border-radius:8px;
-    padding:12px; min-height:140px; white-space:pre-wrap; overflow-wrap:anywhere;
-  }
-  .err{ color:#ff6b6b; min-height:24px; font-weight:600; }
-  .logo{ max-width:160px; display:block; margin:0 auto 6px; }
-  .tiny{ color:#aaa; font-size:.9rem; text-align:center; margin-top:6px; }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Raw Report — Sushi ID</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 24px; }
+    .wrap { max-width: 780px; margin: 0 auto; }
+    h1 { margin: 0 0 12px; }
+    .panel { border: 1px solid #ddd; border-radius: 10px; padding: 16px; margin-top: 16px; }
+    #optionalContext { display: none; } /* hidden per plan */
+    #preview { max-width: 100%; border-radius: 8px; margin-top: 10px; display:none; }
+    button { padding: 10px 16px; border-radius: 8px; border: 1px solid #ccc; cursor: pointer; }
+    .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .hint { opacity: .7; font-size: 0.92rem; }
+    pre { white-space: pre-wrap; word-wrap: break-word; }
+  </style>
 </head>
 <body>
   <div class="wrap">
-    <header>
-      <img src="raw-report-logo.jpg" alt="Raw Report" class="logo">
-      <div class="tiny">If it needs spicy mayo, it’s probably trash.</div>
-      <h1>🐟 The Raw Report — Sushi Fish ID</h1>
-      <div class="tiny">Uploads go to our Cloudflare Worker (key is hidden). No login, no paste.</div>
-    </header>
+    <h1>Raw Report — Sushi ID</h1>
 
-    <section class="card">
-      <label>Upload sushi photo</label>
-      <input id="file" type="file" accept="image/*">
-      <img id="preview" class="preview" alt="preview">
-    </section>
-
-    <section class="card">
-      <label>Optional context (helps accuracy)</label>
-      <input id="context" type="text" placeholder="e.g., deluxe box, Murray Hill; came with tuna roll + miso">
-      <div style="margin-top:12px">
-        <button id="goBtn">Identify Fish</button>
+    <div class="panel">
+      <div class="row">
+        <input id="file" type="file" accept="image/*" />
+        <button id="analyzeBtn">Analyze</button>
+        <span class="hint">Upload → Analyze → piece-by-piece breakdown.</span>
       </div>
-    </section>
+      <img id="preview" alt="preview" />
+      <!-- Optional Context (kept, but hidden) -->
+      <div id="optionalContext" class="panel">
+        <label for="context">Optional context for the model</label>
+        <textarea id="context" rows="3" style="width:100%"></textarea>
+      </div>
+    </div>
 
-    <section class="card">
-      <label>Result</label>
-      <pre id="out">(no result)</pre>
-      <div id="err" class="err"></div>
-    </section>
+    <div class="panel">
+      <h3>Results</h3>
+      <div id="status" class="hint">No analysis yet.</div>
+      <pre id="result"></pre>
+    </div>
   </div>
 
-<script>
-const WORKER_URL = "https://sushi-worker.mheusler65.workers.dev"; // <-- change if your worker URL is different
-
-const fileEl = document.getElementById('file');
-const previewEl = document.getElementById('preview');
-const ctxEl = document.getElementById('context');
-const outEl = document.getElementById('out');
-const errEl = document.getElementById('err');
-const btn = document.getElementById('goBtn');
-
-fileEl.addEventListener('change', () => {
-  const f = fileEl.files[0];
-  if (!f) return;
-  previewEl.src = URL.createObjectURL(f);
-  previewEl.style.display = 'block';
-});
-
-btn.addEventListener('click', async () => {
-  errEl.textContent = "";
-  const f = fileEl.files[0];
-  if (!f) { errEl.textContent = "Please choose a sushi photo first."; return; }
-
-  btn.disabled = true;
-  outEl.textContent = "Analyzing…";
-
-  try {
-    const base64 = await toDataURL(f);
-    const context = ctxEl.value || "";
-
-    const resp = await fetch(WORKER_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ imageDataUrl: base64, context })
-    });
-
-    const data = await resp.json();
-    if (!resp.ok) {
-      errEl.textContent = `API error (${resp.status}): ${data?.error || "Unknown error"}`;
-      outEl.textContent = "";
-      return;
-    }
-    outEl.textContent = (data?.result || "").trim() || "(no result)";
-  } catch (e) {
-    errEl.textContent = "Request failed: " + (e?.message || String(e));
-    outEl.textContent = "";
-  } finally {
-    btn.disabled = false;
-  }
-});
-
-function toDataURL(file){
-  return new Promise((resolve, reject) => {
-    const r = new FileReader();
-    r.onload = () => resolve(r.result);
-    r.onerror = reject;
-    r.readAsDataURL(file);
-  });
-}
-</script>
+  <script type="module" src="./app.js"></script>
 </body>
 </html>
