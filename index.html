@@ -22,8 +22,6 @@
     #preview{max-width:100%;display:none;border-radius:8px;margin-top:10px;border:1px solid var(--line)}
     pre{white-space:pre-wrap;word-break:break-word;margin:0}
     .hint{color:var(--muted)}
-    /* Keep context present for JS, but invisible */
-    #context{display:none;}
   </style>
 </head>
 <body>
@@ -43,9 +41,6 @@
       <img id="preview" alt="preview">
     </div>
 
-    <!-- Hidden optional context so existing JS won’t break -->
-    <textarea id="context" placeholder=""></textarea>
-
     <div class="panel">
       <div class="label">Result</div>
       <div id="status" class="hint">No analysis yet.</div>
@@ -53,7 +48,74 @@
     </div>
   </div>
 
-  <!-- Load your existing JS that wires the buttons -->
-  <script src="./api/identify.js"></script>
+  <!-- Self-contained JS: no external files required -->
+  <script>
+    const WORKER = 'https://sushi-worker.mheusler65.workers.dev';
+
+    const fileInput  = document.getElementById('file');
+    const previewBtn = document.getElementById('previewBtn');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const preview    = document.getElementById('preview');
+    const statusEl   = document.getElementById('status');
+    const resultEl   = document.getElementById('result');
+
+    let imageDataUrl = null;
+
+    function loadAsDataURL(file){
+      return new Promise((resolve,reject)=>{
+        const r = new FileReader();
+        r.onload = () => resolve(r.result);
+        r.onerror = () => reject(new Error('Could not read image file.'));
+        r.readAsDataURL(file);
+      });
+    }
+
+    previewBtn.addEventListener('click', async () => {
+      const f = fileInput.files && fileInput.files[0];
+      if (!f) { statusEl.textContent = 'Choose a photo first.'; return; }
+      imageDataUrl = await loadAsDataURL(f);
+      preview.src = imageDataUrl;
+      preview.style.display = 'block';
+      statusEl.textContent = 'Preview loaded.';
+      resultEl.textContent = '';
+    });
+
+    analyzeBtn.addEventListener('click', async () => {
+      const f = fileInput.files && fileInput.files[0];
+      if (!f) { statusEl.textContent = 'Choose a photo first.'; return; }
+      if (!imageDataUrl) { imageDataUrl = await loadAsDataURL(f); preview.src=imageDataUrl; preview.style.display='block'; }
+
+      statusEl.textContent = 'Analyzing…';
+      analyzeBtn.disabled = true;
+
+      try {
+        const resp = await fetch(WORKER + '/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ imageDataUrl })
+        });
+        if (!resp.ok) {
+          const t = await resp.text().catch(()=> '');
+          throw new Error('HTTP ' + resp.status + ' ' + resp.statusText + (t ? ' — ' + t : ''));
+        }
+        const data = await resp.json().catch(()=> ({}));
+        statusEl.textContent = 'Done.';
+        resultEl.textContent = data.result ?? JSON.stringify(data, null, 2);
+      } catch (e) {
+        statusEl.textContent = 'Error while analyzing.';
+        resultEl.textContent = String(e);
+      } finally {
+        analyzeBtn.disabled = false;
+      }
+    });
+
+    // Clear status when new file chosen
+    fileInput.addEventListener('change', () => {
+      imageDataUrl = null;
+      preview.style.display = 'none';
+      resultEl.textContent = '';
+      statusEl.textContent = 'Image selected.';
+    });
+  </script>
 </body>
 </html>
